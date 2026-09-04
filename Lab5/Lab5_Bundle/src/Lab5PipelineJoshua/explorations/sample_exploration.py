@@ -215,3 +215,29 @@ if __name__ == "__main__":
 
 # COMMAND ----------
 
+# MAGIC %sql
+# MAGIC SELECT 
+# MAGIC     c.country_code,
+# MAGIC     COUNT(f.icao24) AS total_observations,
+# MAGIC     ROUND(AVG(f.baro_altitude), 2) AS avg_baro_altitude,
+# MAGIC     ROUND(AVG(f.velocity), 2) AS avg_velocity
+# MAGIC FROM workspace.lab5_gold.gold_fact_flight_observations f
+# MAGIC JOIN workspace.lab5_gold.gold_dim_country c 
+# MAGIC     ON f.country_code = c.country_code
+# MAGIC JOIN workspace.lab5_gold.gold_dim_aircraft a 
+# MAGIC     ON f.icao24 = a.icao24
+# MAGIC GROUP BY c.country_code
+# MAGIC ORDER BY total_observations DESC
+# MAGIC LIMIT 15;
+
+# COMMAND ----------
+
+# MAGIC %sql
+# MAGIC SELECT 
+# MAGIC     COUNT(*) AS total_observations,
+# MAGIC     COUNT(DISTINCT icao24) AS unique_aircraft,
+# MAGIC     COUNT(DISTINCT country_code) AS active_countries
+# MAGIC FROM workspace.lab5_gold.gold_fact_flight_observations;
+
+# COMMAND ----------
+

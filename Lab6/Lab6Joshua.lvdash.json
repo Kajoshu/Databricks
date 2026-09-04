@@ -1,0 +1,609 @@
+{
+  "datasets": [
+    {
+      "name": "6de10f48",
+      "displayName": "KPI1Data",
+      "queryLines": [
+        "SELECT \n",
+        "    COUNT(*) AS total_observations,\n",
+        "    COUNT(DISTINCT icao24) AS unique_aircraft,\n",
+        "    COUNT(DISTINCT country_code) AS active_countries\n",
+        "FROM workspace.lab5_gold.gold_fact_flight_observations;\n",
+        "\n"
+      ],
+      "catalog": "workspace",
+      "schema": "lab5_gold"
+    },
+    {
+      "name": "flight_observations",
+      "displayName": "Flight Observations by Country",
+      "queryLines": [
+        "SELECT\n",
+        "  country_code,\n",
+        "  observation_timestamp,\n",
+        "  icao24,\n",
+        "  callsign,\n",
+        "  baro_altitude,\n",
+        "  velocity,\n",
+        "  vertical_rate,\n",
+        "  on_ground\n",
+        "FROM\n",
+        "  workspace.lab5_gold.gold_fact_flight_observations\n",
+        "ORDER BY\n",
+        "  country_code"
+      ]
+    },
+    {
+      "name": "704e796c",
+      "displayName": "Top Flight Counts and Altitude by Country Analysis",
+      "queryLines": [
+        "-- Ranks top countries by total flight observations to display regional airspace congestion\n",
+        "SELECT \n",
+        "    country_code,\n",
+        "    COUNT(*) AS flight_count,\n",
+        "    ROUND(AVG(baro_altitude), 2) AS avg_altitude\n",
+        "FROM workspace.lab5_gold.gold_fact_flight_observations\n",
+        "GROUP BY country_code\n",
+        "ORDER BY flight_count DESC\n",
+        "LIMIT 10;"
+      ]
+    },
+    {
+      "name": "top_countries",
+      "displayName": "Top Countries by Flight Count",
+      "queryLines": [
+        "SELECT\n",
+        "  country_code,\n",
+        "  COUNT(*) AS flight_count,\n",
+        "  ROUND(AVG(baro_altitude), 2) AS avg_altitude\n",
+        "FROM\n",
+        "  workspace.lab5_gold.gold_fact_flight_observations\n",
+        "GROUP BY\n",
+        "  country_code\n",
+        "HAVING\n",
+        "  COUNT(*) >= 10\n",
+        "ORDER BY\n",
+        "  flight_count DESC"
+      ]
+    },
+    {
+      "name": "fastest_callsigns",
+      "displayName": "Aircraft Performance Clusters",
+      "queryLines": [
+        "SELECT\n",
+        "  a.callsign,\n",
+        "  f.country_code,\n",
+        "  ROUND(AVG(f.baro_altitude), 2) AS avg_altitude,\n",
+        "  ROUND(AVG(f.velocity), 2) AS avg_velocity\n",
+        "FROM\n",
+        "  workspace.lab5_gold.gold_fact_flight_observations f\n",
+        "    JOIN workspace.lab5_gold.gold_dim_aircraft a\n",
+        "      ON f.icao24 = a.icao24\n",
+        "GROUP BY\n",
+        "  a.callsign,\n",
+        "  f.country_code\n",
+        "ORDER BY\n",
+        "  avg_velocity DESC"
+      ]
+    },
+    {
+      "name": "vertical_patterns",
+      "displayName": "Vertical Flight Patterns by Country",
+      "queryLines": [
+        "SELECT\n",
+        "  country_code,\n",
+        "  ROUND(AVG(vertical_rate), 2) AS avg_vertical_rate,\n",
+        "  COUNT(*) AS tracking_events\n",
+        "FROM\n",
+        "  workspace.lab5_gold.gold_fact_flight_observations\n",
+        "GROUP BY\n",
+        "  country_code\n",
+        "ORDER BY\n",
+        "  ABS(avg_vertical_rate) DESC\n",
+        "LIMIT 10"
+      ]
+    },
+    {
+      "name": "tracking_density",
+      "displayName": "Aircraft Tracking Density by Country",
+      "queryLines": [
+        "SELECT\n",
+        "  country_code,\n",
+        "  APPROX_COUNT_DISTINCT(icao24) AS unique_aircraft_count,\n",
+        "  COUNT(*) AS total_pings,\n",
+        "  ROUND(COUNT(*) * 1.0 / NULLIF(APPROX_COUNT_DISTINCT(icao24), 0), 2) AS pings_per_aircraft_ratio\n",
+        "FROM\n",
+        "  workspace.lab5_gold.gold_fact_flight_observations\n",
+        "GROUP BY\n",
+        "  country_code\n",
+        "ORDER BY\n",
+        "  total_pings DESC\n",
+        "LIMIT 10"
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "name": "25c5d266",
+      "displayName": "FlightsAnalysis",
+      "layout": [
+        {
+          "widget": {
+            "name": "total_observations_counter",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "flight_observations",
+                  "fields": [
+                    {
+                      "name": "count(observation_timestamp)",
+                      "expression": "COUNT(`observation_timestamp`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Total Observations"
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "count(observation_timestamp)",
+                  "rowNumber": 0
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 4,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "unique_aircraft_counter",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "flight_observations",
+                  "fields": [
+                    {
+                      "name": "countdistinct(icao24)",
+                      "expression": "COUNT(DISTINCT `icao24`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Unique Aircraft"
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "countdistinct(icao24)",
+                  "rowNumber": 0
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 4,
+            "y": 0,
+            "width": 4,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "active_countries_counter",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "flight_observations",
+                  "fields": [
+                    {
+                      "name": "countdistinct(country_code)",
+                      "expression": "COUNT(DISTINCT `country_code`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Active Countries"
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "countdistinct(country_code)",
+                  "rowNumber": 0
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 8,
+            "y": 0,
+            "width": 4,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "top_countries_bar",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "top_countries",
+                  "fields": [
+                    {
+                      "name": "country_code",
+                      "expression": "`country_code`"
+                    },
+                    {
+                      "name": "flight_count",
+                      "expression": "`flight_count`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "Top Countries by Flight Observations",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "country_code",
+                  "displayName": "country_code",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "y"
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "flight_count",
+                  "displayName": "Flight Count",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "country_code",
+                  "displayName": "country_code",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 3,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "top_countries_no_us",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "top_countries",
+                  "fields": [
+                    {
+                      "name": "country_code",
+                      "expression": "`country_code`"
+                    },
+                    {
+                      "name": "flight_count",
+                      "expression": "`flight_count`"
+                    }
+                  ],
+                  "filters": [
+                    {
+                      "expression": "`country_code` NOT IN ('United States')"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "Top Countries (Excluding US)",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "country_code",
+                  "displayName": "country_code",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "y"
+                    }
+                  }
+                },
+                "y": {
+                  "fieldName": "flight_count",
+                  "displayName": "Flight Count",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "country_code",
+                  "displayName": "country_code",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 3,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "fastest_callsigns_table",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "fastest_callsigns",
+                  "fields": [
+                    {
+                      "name": "country_code",
+                      "expression": "`country_code`"
+                    },
+                    {
+                      "name": "avg_altitude",
+                      "expression": "`avg_altitude`"
+                    },
+                    {
+                      "name": "avg_velocity",
+                      "expression": "`avg_velocity`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Aircraft Performance Clusters"
+              },
+              "version": 3,
+              "widgetType": "scatter",
+              "encodings": {
+                "x": {
+                  "fieldName": "avg_altitude",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "y": {
+                  "fieldName": "avg_velocity",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "country_code",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 9,
+            "width": 12,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "vertical_patterns_bar",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "vertical_patterns",
+                  "fields": [
+                    {
+                      "name": "country_code",
+                      "expression": "`country_code`"
+                    },
+                    {
+                      "name": "sum(avg_vertical_rate)",
+                      "expression": "SUM(`avg_vertical_rate`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Vertical Flight Activity by Country"
+              },
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "country_code",
+                  "displayName": "country_code",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(avg_vertical_rate)",
+                  "displayName": "avg_vertical_rate",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "country_code",
+                  "displayName": "country_code",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 15,
+            "width": 12,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "tracking_density_table",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "tracking_density",
+                  "fields": [
+                    {
+                      "name": "country_code",
+                      "expression": "`country_code`"
+                    },
+                    {
+                      "name": "unique_aircraft_count",
+                      "expression": "`unique_aircraft_count`"
+                    },
+                    {
+                      "name": "total_pings",
+                      "expression": "`total_pings`"
+                    },
+                    {
+                      "name": "pings_per_aircraft_ratio",
+                      "expression": "`pings_per_aircraft_ratio`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Aircraft Tracking Density"
+              },
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "country_code"
+                  },
+                  {
+                    "fieldName": "unique_aircraft_count"
+                  },
+                  {
+                    "fieldName": "total_pings"
+                  },
+                  {
+                    "fieldName": "pings_per_aircraft_ratio"
+                  }
+                ]
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 21,
+            "width": 12,
+            "height": 6
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "widgetHeaderAlignment": "ALIGNMENT_UNSPECIFIED"
+    },
+    "applyModeEnabled": false
+  }
+}

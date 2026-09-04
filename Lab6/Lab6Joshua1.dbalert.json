@@ -1,0 +1,51 @@
+{
+  "evaluation": {
+    "source": {
+      "name": "percent_change",
+      "display": "percent_change",
+      "aggregation": "AGGREGATION_UNSPECIFIED"
+    },
+    "comparison_operator": "GREATER_THAN",
+    "threshold": {
+      "value": {
+        "double_value": 70.0
+      }
+    },
+    "notification": {}
+  },
+  "schedule": {
+    "quartz_cron_schedule": "40 2 8 * * ?",
+    "timezone_id": "Europe/Warsaw"
+  },
+  "query_lines": [
+    "WITH hourly_country_traffic AS ",
+    "(",
+    "  SELECT ",
+    "    country_code,",
+    "    -- Replace 'observation_timestamp' with your actual timestamp column name",
+    "    DATE_TRUNC('hour', observation_timestamp) AS flight_hour,",
+    "    COUNT(*) AS current_hour_pings",
+    "  FROM workspace.lab5_gold.gold_fact_flight_observations",
+    "  GROUP BY country_code, DATE_TRUNC('hour', observation_timestamp)",
+    "),",
+    "traffic_comparison AS (",
+    "  SELECT ",
+    "    country_code,",
+    "    flight_hour,",
+    "    current_hour_pings,",
+    "    -- Pulls the count from the exact previous hour for the same country",
+    "    LAG(current_hour_pings, 1) OVER (PARTITION BY country_code ORDER BY flight_hour) AS prev_hour_pings",
+    "  FROM hourly_country_traffic",
+    ")",
+    "SELECT ",
+    "  country_code,",
+    "  flight_hour,",
+    "  prev_hour_pings,",
+    "  current_hour_pings,",
+    "  ROUND((current_hour_pings - prev_hour_pings) * 100.0 / NULLIF(prev_hour_pings, 0), 2) AS percent_change",
+    "FROM traffic_comparison",
+    "WHERE prev_hour_pings IS NOT NULL",
+    "  -- Triggers if traffic drops by more than 70% compared to the previous hour",
+    "  AND ((current_hour_pings - prev_hour_pings) * 100.0 / NULLIF(prev_hour_pings, 0)) < -70;"
+  ]
+}

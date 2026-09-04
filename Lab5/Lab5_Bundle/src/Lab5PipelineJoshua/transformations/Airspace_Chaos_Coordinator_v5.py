@@ -126,3 +126,44 @@ def gold_callsign_leaderboard():
         GROUP BY callsign, origin_country
         ORDER BY position_updates_count DESC
     """)
+    
+    # ==========================================
+# LAB 6: STAR SCHEMA (GOLD LAYER) EXTENSIONS
+# ==========================================
+
+@dp.materialized_view(
+    name=f"{CATALOG}.{GOLD_SCHEMA}.gold_dim_aircraft",
+    comment="Dimension table for unique aircraft and callsigns"
+)
+def gold_dim_aircraft():
+    df = spark.read.table(TABLES["dedup_flights"])
+    return df.select("icao24", "callsign").dropDuplicates(["icao24"])
+
+
+@dp.materialized_view(
+    name=f"{CATALOG}.{GOLD_SCHEMA}.gold_dim_country",
+    comment="Dimension table for origin countries"
+)
+def gold_dim_country():
+    df = spark.read.table(TABLES["dedup_flights"])
+    return df.select(
+        F.col("origin_country").alias("country_code")
+    ).dropDuplicates(["country_code"])
+
+
+@dp.materialized_view(
+    name=f"{CATALOG}.{GOLD_SCHEMA}.gold_fact_flight_observations",
+    comment="Fact table containing granular flight state metrics and measurements"
+)
+def gold_fact_flight_observations():
+    df = spark.read.table(TABLES["dedup_flights"])
+    return df.select(
+        "icao24",
+        "callsign",
+        F.col("origin_country").alias("country_code"),
+        "baro_altitude",
+        "velocity",
+        "vertical_rate",
+        "on_ground",
+        F.col("ingestion_timestamp").alias("observation_timestamp")
+    )
