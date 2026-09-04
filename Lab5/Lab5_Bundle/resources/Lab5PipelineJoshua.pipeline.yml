@@ -1,0 +1,103 @@
+resources:
+  pipelines:
+    Lab5PipelineJoshua:
+      name: Lab5PipelineJoshua
+      libraries:
+        - glob:
+            include: ../src/Lab5PipelineJoshua/transformations/**
+      serverless: true
+      catalog: ${var.env_catalog}
+      schema: josurekamotho
+      root_path: ../src/Lab5PipelineJoshua
+      configuration:
+        catalog: ${var.env_catalog}
+        bronze_schema: "${var.schema_prefix}_bronze"
+        silver_schema: "${var.schema_prefix}_silver"
+        gold_schema: "${var.schema_prefix}_gold"
+
+  jobs:
+    opensky_workflow:
+      name: "OpenSky End-to-End Pipeline (${bundle.target})"
+      tasks:
+        # Task 1: Fetch fresh OpenSky data and append to Bronze
+        - task_key: run_ingestion
+          spark_python_task:
+            python_file: ../src/Lab5PipelineJoshua/ingestion/opensky_ingest.py
+          environment_key: default
+          spark_conf:
+            spark.lab5.catalog: "${var.env_catalog}"
+            spark.lab5.bronze_schema: "${var.schema_prefix}_bronze"
+
+        # Task 2: Run the DLT pipeline immediately after ingestion succeeds
+        - task_key: run_dlt_pipeline
+          depends_on:
+            - task_key: run_ingestion
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.Lab5PipelineJoshua.id}
+
+
+
+            # resources:
+            #   pipelines:
+            #     Lab5PipelineJoshua:
+            #       name: Lab5PipelineJoshua_${bundle.target}
+            #       libraries:
+            #         - glob:
+            #             include: ../src/Lab5PipelineJoshua/transformations/**
+            #       serverless: true
+            #       catalog: ${var.env_catalog}
+            #       schema: ${var.schema_prefix}_core
+            #       root_path: ../src/Lab5PipelineJoshua
+            #       configuration:
+            #         catalog: ${var.env_catalog}
+            #         bronze_schema: "${var.schema_prefix}_bronze"
+            #         silver_schema: "${var.schema_prefix}_silver"
+            #         gold_schema: "${var.schema_prefix}_gold"
+
+            #   jobs:
+            #     opensky_workflow:
+            #       name: "OpenSky End-to-End Pipeline (${bundle.target})"
+            #       tasks:
+            #         # Task 1: Fetch fresh OpenSky data and append to Bronze
+            #         - task_key: run_ingestion
+            #           spark_python_task:
+            #             python_file: ../src/Lab5PipelineJoshua/ingestion/opensky_ingest.py
+            #           spark_conf:
+            #             spark.lab5.catalog: "${var.env_catalog}"
+            #             spark.lab5.bronze_schema: "${var.schema_prefix}_bronze"
+
+            #         # Task 2: Run the DLT pipeline immediately after ingestion succeeds
+            #         - task_key: run_dlt_pipeline
+            #           depends_on:
+            #             - task_key: run_ingestion
+            #           pipeline_task:
+            #             pipeline_id: ${resources.pipelines.Lab5PipelineJoshua.id}
+
+            # resources:
+            #   pipelines:
+            #     Lab5PipelineJoshua:
+            #       name: Lab5PipelineJoshua
+            #       libraries:
+            #         - glob:
+            #             include: ../src/Lab5PipelineJoshua/transformations/**
+            #       serverless: true
+            #       catalog: workspace
+            #       schema: ${workspace.current_user.short_name}
+            #       root_path: ../src/Lab5PipelineJoshua
+
+            # resources:
+            #   pipelines:
+            #     Lab5PipelineJoshua:
+            #       name: Lab5PipelineJoshua_${bundle.target}
+            #       libraries:
+            #         - glob:
+            #             include: ../src/Lab5PipelineJoshua/transformations/**
+            #       serverless: true
+            #       catalog: ${var.env_catalog}
+            #       schema: ${var.schema_prefix}_core
+            #       root_path: ../src/Lab5PipelineJoshua
+            #       configuration:
+            #         catalog: ${var.env_catalog}
+            #         bronze_schema: "${var.schema_prefix}_bronze"
+            #         silver_schema: "${var.schema_prefix}_silver"
+            #         gold_schema: "${var.schema_prefix}_gold"

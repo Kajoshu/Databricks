@@ -1,0 +1,62 @@
+bundle:
+  name: "Lab5_Bundle"
+
+# Declare customizable variables for the bundle
+variables:
+  env_catalog:
+    description: "The target catalog based on environment"
+    default: "workspace"
+  schema_prefix:
+    description: "Prefix for schemas"
+    default: "lab5"
+
+include:
+  - resources/*.yml
+  - resources/*/*.yml
+
+targets:
+  dev:
+    mode: development
+    default: true
+    workspace:
+      host: https://dbc-d6616b16-db43.cloud.databricks.com
+    # Uses default "workspace" catalog
+
+  prod:
+    mode: production
+    workspace:
+      host: https://dbc-d6616b16-db43.cloud.databricks.com
+      root_path: /Users/josurekamotho@gmail.com/.bundle/${bundle.name}/${bundle.target}
+    run_as:
+      user_name: josurekamotho@gmail.com
+    variables:
+      env_catalog: "dbr_dev" # Automatically swaps to dbr_dev for production targets
+
+
+# Declarative Automation Bundle configuration, more info here: https://docs.databricks.com/en/dev-tools/bundles/settings.html
+# bundle:
+#   name: "Lab5_Bundle"
+
+# include:
+#   - resources/*.yml
+#   - resources/*/*.yml
+
+# targets:
+#   # The 'dev' target, for development purposes. This target is the default.
+#   dev:
+#     mode: development
+#     default: true
+#     workspace:
+#       host: https://dbc-d6616b16-db43.cloud.databricks.com
+
+#   # The 'prod' target, used for production deployment.
+#   prod:
+#     mode: production
+#     workspace:
+#       host: https://dbc-d6616b16-db43.cloud.databricks.com
+#       # We always use /Users/josurekamotho@gmail.com for all resources to make sure we only have a single copy.
+#       root_path: /Users/josurekamotho@gmail.com/.bundle/${bundle.name}/${bundle.target}
+#     run_as:
+#       # This runs as josurekamotho@gmail.com in production. We could also use a service principal here,
+#       # see https://docs.databricks.com/dev-tools/bundles/permissions.html.
+#       user_name: josurekamotho@gmail.com
