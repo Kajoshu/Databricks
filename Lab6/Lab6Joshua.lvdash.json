@@ -120,6 +120,48 @@
         "  total_pings DESC\n",
         "LIMIT 10"
       ]
+    },
+    {
+      "name": "32ad9c35",
+      "displayName": "gold_hourly_airspace_metrics",
+      "config": {
+        "version": "1.1",
+        "source": "workspace.joshuandegwa_gold.gold_hourly_airspace_metrics",
+        "dimensions": [
+          {
+            "expr": "source.*"
+          }
+        ],
+        "measures": [
+          {
+            "name": "count",
+            "expr": "COUNT(*)",
+            "comment": "Represents the total number of rows in the dataset. Use this measure to count all",
+            "displayName": "Count"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ca380641",
+      "displayName": "gold_origin_country_summary",
+      "config": {
+        "version": "1.1",
+        "source": "workspace.joshuandegwa_gold.gold_origin_country_summary",
+        "dimensions": [
+          {
+            "expr": "source.*"
+          }
+        ],
+        "measures": [
+          {
+            "name": "count",
+            "expr": "COUNT(*)",
+            "comment": "Represents the total number of rows in the dataset. Use this measure to count all",
+            "displayName": "Count"
+          }
+        ]
+      }
     }
   ],
   "pages": [
