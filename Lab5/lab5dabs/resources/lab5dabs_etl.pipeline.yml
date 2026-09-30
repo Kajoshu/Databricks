@@ -18,7 +18,7 @@ resources:
           # that points to the folder where pyproject.toml is deployed.
           - --editable ${workspace.file_path}
       configuration:
-        BRONZE_SCHEMA: joshuandegwa_bronze
-        CATALOG: workspace
-        GOLD_SCHEMA: joshuandegwa_gold
-        SILVER_SCHEMA: joshuandegwa_silver
+        CATALOG: "${var.catalog}"
+        BRONZE_SCHEMA: "${var.schema}_bronze"
+        SILVER_SCHEMA: "${var.schema}_silver"
+        GOLD_SCHEMA: "${var.schema}_gold"
