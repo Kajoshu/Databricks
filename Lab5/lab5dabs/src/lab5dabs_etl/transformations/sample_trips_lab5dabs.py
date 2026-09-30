@@ -9,4 +9,4 @@ from pyspark.sql.functions import col
 
 @dp.table
 def sample_trips_lab5dabs():
-    return spark.read.table("samples.nyctaxi.trips")
+    return spark.read.table(f"{catalog}.{bronze_schema}.samples.nyctaxi.trips")
