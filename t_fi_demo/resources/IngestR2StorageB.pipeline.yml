@@ -1,0 +1,11 @@
+resources:
+  pipelines:
+    IngestR2StorageB:
+      name: IngestR2StorageB
+      libraries:
+        - glob:
+            include: ../src/IngestR2StorageB/transformations/**
+      serverless: true
+      catalog: dbr_dev
+      schema: joshuandegwa_bronze
+      root_path: ../src/IngestR2StorageB
