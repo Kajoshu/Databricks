@@ -1,0 +1,51 @@
+resources:
+  pipelines:
+    postgres_ingestion_test_pipeline:
+      name: "PostgresIngestion_test"
+      # pipeline_type: "MANAGED_INGESTION"
+      catalog: "dbr_dev"
+      schema: "joshuandegwa_bronze"
+      channel: "PREVIEW"
+      ingestion_definition:
+        connection_name: "postgresingestion"
+        source_type: "POSTGRESQL"
+        objects:
+          - table:
+              source_catalog: "neondb"
+              source_schema: "public"
+              source_table: "claims"
+              destination_catalog: "dbr_dev"
+              destination_schema: "joshua_test"
+              table_configuration:
+                primary_keys:
+                  - "claim_no"
+                query_based_connector_config:
+                  cursor_columns:
+                    - "claim_no"
+                scd_type: "SCD_TYPE_2"
+          - table:
+              source_catalog: "neondb"
+              source_schema: "public"
+              source_table: "customers"
+              destination_catalog: "dbr_dev"
+              destination_schema: "joshua_test"
+              table_configuration:
+                primary_keys:
+                  - "customer_id"
+                query_based_connector_config:
+                  cursor_columns:
+                    - "customer_id"
+                scd_type: "SCD_TYPE_2"
+          - table:
+              source_catalog: "neondb"
+              source_schema: "public"
+              source_table: "policies"
+              destination_catalog: "dbr_dev"
+              destination_schema: "joshua_test"
+              table_configuration:
+                primary_keys:
+                  - "policy_no"
+                query_based_connector_config:
+                  cursor_columns:
+                    - "policy_no"
+                scd_type: "SCD_TYPE_2"

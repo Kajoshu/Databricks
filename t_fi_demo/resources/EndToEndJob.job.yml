@@ -1,0 +1,15 @@
+resources:
+  jobs:
+    EndToEndJob:
+      name: EndToEndJob
+      queue:
+        enabled: true
+      tasks:
+        - run_job_task:
+            job_id: 1090856269094023
+          task_key: PostgresIngest
+        - depends_on:
+            - task_key: PostgresIngest
+          pipeline_task:
+            pipeline_id: cb42ba76-2986-4e43-9b45-9f7e05d14648
+          task_key: PostgresTOMedallion
