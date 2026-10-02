@@ -1,0 +1,11 @@
+resources:
+  pipelines:
+    telemetryIngestionB:
+      name: telemetryIngestionB
+      libraries:
+        - glob:
+            include: ../src/telemetryIngestionB/transformations/**
+      serverless: true
+      catalog: dbr_dev
+      schema: joshuandegwa_bronze
+      root_path: ../src/telemetryIngestionB

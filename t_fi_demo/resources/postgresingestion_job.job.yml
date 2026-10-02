@@ -1,0 +1,21 @@
+resources:
+  jobs:
+    postgresingestion_job:
+      name: PostgresIngestion job
+      tasks:
+        - task_key: PostgresIngestion_job
+          disabled: false
+          email_notifications: {}
+          pipeline_task:
+            pipeline_id: c68a0a4e-339b-470c-b5f3-35468f589d0e
+          run_if: ALL_SUCCESS
+          timeout_seconds: 0
+      email_notifications: {}
+      max_concurrent_runs: 1
+      timeout_seconds: 0
+      trigger:
+        pause_status: UNPAUSED
+        periodic:
+          interval: 1
+          unit: DAYS
+      webhook_notifications: {}
