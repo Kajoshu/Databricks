@@ -1,0 +1,17 @@
+resources:
+  pipelines:
+    medallionpipeline:
+      name: MedallionPipeline
+      libraries:
+        - glob:
+            include: ../src/medallionpipeline/transformations/**
+      catalog: dbr_dev
+      channel: CURRENT
+      continuous: false
+      environment:
+        dependencies:
+          - geopy==2.4.1
+      photon: true
+      root_path: ../src/medallionpipeline
+      schema: joshuandegwa_bronze
+      serverless: true
