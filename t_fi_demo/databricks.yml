@@ -12,18 +12,22 @@ targets:
     mode: development
     default: true
     workspace:
-      host: https://dbc-c0987de1-e4e2.cloud.databricks.com
+      host: https://adb-7405604503619901.1.azuredatabricks.net
+      # host: https://dbc-c0987de1-e4e2.cloud.databricks.com
       # host: https://dbc-d6616b16-db43.cloud.databricks.com
 
   # The 'prod' target, used for production deployment.
   prod:
     mode: production
     workspace:
-      host: https://dbc-c0987de1-e4e2.cloud.databricks.com
+      host: https://adb-7405604503619901.1.azuredatabricks.net
+      # host: https://dbc-c0987de1-e4e2.cloud.databricks.com
       # host: https://dbc-d6616b16-db43.cloud.databricks.com
       # We always use /Users/josurekamotho@gmail.com for all resources to make sure we only have a single copy.
-      root_path: /Users/josurekamotho@gmail.com/.bundle/${bundle.name}/${bundle.target}
+      # root_path: /Users/josurekamotho@gmail.com/.bundle/${bundle.name}/${bundle.target}
+      root_path: /Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}
     run_as:
+      user_name: ${workspace.current_user.userName}
       # This runs as josurekamotho@gmail.com in production. We could also use a service principal here,
       # see https://docs.databricks.com/dev-tools/bundles/permissions.html.
-      user_name: josurekamotho@gmail.com
+      
