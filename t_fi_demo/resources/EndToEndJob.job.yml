@@ -1,15 +1,33 @@
 resources:
   jobs:
     EndToEndJob:
-      name: EndToEndJob
+      name: "End-to-End Pipeline"
       queue:
         enabled: true
+      schedule:
+        quartz_cron_expression: "0 0 22 * * ?"
+        timezone_id: "UTC"
       tasks:
-        - run_job_task:
-            job_id: 1090856269094023
-          task_key: PostgresIngest
-        - depends_on:
+        # 1. R2 Ingest Pipeline (Parallel)
+        - task_key: r2_ingest
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.IngestR2StorageB.id}
+
+        # 2. Telemetry Ingest Pipeline (Parallel)
+        - task_key: TelemetryIngest
+          pipeline_task:
+            pipeline_id: ${resources.pipelines.telemetryIngestionB.id}
+
+        # 3. Postgres Ingest Job (Parallel)
+        - task_key: PostgresIngest
+          run_job_task:
+            job_id: ${resources.jobs.postgresingestion_job.id}
+
+        # 4. Downstream Medallion Pipeline (Waits for all three above)
+        - task_key: MedallionETL
+          depends_on:
+            - task_key: r2_ingest
+            - task_key: TelemetryIngest
             - task_key: PostgresIngest
           pipeline_task:
-            pipeline_id: cb42ba76-2986-4e43-9b45-9f7e05d14648
-          task_key: PostgresTOMedallion
+            pipeline_id: ${resources.pipelines.medallionpipeline.id}

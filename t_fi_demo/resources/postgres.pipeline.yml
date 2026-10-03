@@ -15,7 +15,7 @@ resources:
               source_schema: "public"
               source_table: "claims"
               destination_catalog: "dbr_dev"
-              destination_schema: "joshua_test"
+              destination_schema: joshuandegwa_bronze
               table_configuration:
                 primary_keys:
                   - "claim_no"
@@ -28,7 +28,7 @@ resources:
               source_schema: "public"
               source_table: "customers"
               destination_catalog: "dbr_dev"
-              destination_schema: "joshua_test"
+              destination_schema: joshuandegwa_bronze
               table_configuration:
                 primary_keys:
                   - "customer_id"
@@ -41,7 +41,7 @@ resources:
               source_schema: "public"
               source_table: "policies"
               destination_catalog: "dbr_dev"
-              destination_schema: "joshua_test"
+              destination_schema: joshuandegwa_bronze
               table_configuration:
                 primary_keys:
                   - "policy_no"
