@@ -48,7 +48,7 @@ def claim_metadata():
       .option("inferSchema", "true")
       .option(
           "cloudFiles.schemaLocation",
-          f"{claims_base_path}/metadata/image_metadata.csv",
+          f"{claims_base_path}/_schemas/claim_metadata_schema",
       )
       .load(f"{claims_base_path}/metadata")
   )
