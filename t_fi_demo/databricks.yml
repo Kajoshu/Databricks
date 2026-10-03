@@ -12,13 +12,15 @@ targets:
     mode: development
     default: true
     workspace:
-      host: https://dbc-d6616b16-db43.cloud.databricks.com
+      host: https://dbc-c0987de1-e4e2.cloud.databricks.com
+      # host: https://dbc-d6616b16-db43.cloud.databricks.com
 
   # The 'prod' target, used for production deployment.
   prod:
     mode: production
     workspace:
-      host: https://dbc-d6616b16-db43.cloud.databricks.com
+      host: https://dbc-c0987de1-e4e2.cloud.databricks.com
+      # host: https://dbc-d6616b16-db43.cloud.databricks.com
       # We always use /Users/josurekamotho@gmail.com for all resources to make sure we only have a single copy.
       root_path: /Users/josurekamotho@gmail.com/.bundle/${bundle.name}/${bundle.target}
     run_as:
