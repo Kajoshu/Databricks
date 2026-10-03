@@ -2,7 +2,8 @@ import dlt
 
 # --- 1. Claims Configuration ---
 claims_base_path = "/Volumes/dbr_dev/joshuandegwa_bronze/images/claims"
-claims_incoming = f"{claims_base_path}/incoming"
+# Pointing directly to your actual source folder where the claim images live:
+claims_incoming = f"{claims_base_path}/images"
 claims_archive = f"{claims_base_path}/archive"
 
 archive_configs = {
@@ -29,7 +30,6 @@ def claim_images():
       .options(**archive_configs)
       .load(claims_incoming)
   )
-
 
 # --- Table 2: Claim Metadata (CSV) ---
 @dlt.table(
