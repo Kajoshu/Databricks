@@ -3,4 +3,4 @@ resources:
     smart_claims_portal:
       name: smart-claims-${workspace.current_user.domain_friendly_name}
       description: "End-to-end insurance claim submission and automated ML analysis portal."
-      source_code_path: ../apps/smart-claims-portal
+      source_code_path: ../apps
