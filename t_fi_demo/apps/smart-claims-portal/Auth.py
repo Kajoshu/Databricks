@@ -18,7 +18,7 @@ if "logged_in" not in st.session_state:
 
 def authenticate_policy(policy_number: str):
     """
-    Dynamically queries the customer_claim_policy table via the Databricks SQL connector.
+    Dynamically queries the joshuandegwa_silver.policies table via the Databricks SQL connector.
     """
     try:
         cleaned_policy = policy_number.strip()
@@ -27,8 +27,9 @@ def authenticate_policy(policy_number: str):
             SELECT policy_no, cust_id, policytype, pol_issue_date, pol_eff_date,
                    pol_expiry_date, make, model, model_year, chassis_no,
                    use_of_vehicle, product, sum_insured, premium, deductable
-            FROM dbr_dev.joshuandegwa_gold.customer_claim_policy
+            FROM dbr_dev.joshuandegwa_silver.policies
             WHERE policy_no = ?
+              AND __END_AT IS NULL
             LIMIT 1
         """
 
