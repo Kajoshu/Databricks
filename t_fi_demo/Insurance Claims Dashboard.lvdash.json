@@ -1,0 +1,745 @@
+{
+  "datasets": [
+    {
+      "name": "3e919ebb",
+      "displayName": "customer_claim_policy_telematics_predicted",
+      "config": {
+        "version": "1.1",
+        "source": "dbr_dev.joshuandegwa_gold.customer_claim_policy_telematics_predicted",
+        "dimensions": [
+          {
+            "expr": "source.*"
+          }
+        ],
+        "measures": [
+          {
+            "name": "count",
+            "expr": "COUNT(*)",
+            "comment": "Represents the total number of rows in the dataset. Use this measure to count all",
+            "displayName": "Count"
+          }
+        ]
+      }
+    },
+    {
+      "name": "a360d572",
+      "displayName": "claim_images_predicted",
+      "config": {
+        "version": "1.1",
+        "source": "dbr_dev.joshuandegwa_gold.claim_images_predicted"
+      }
+    },
+    {
+      "name": "42cfcb3b",
+      "displayName": "customer_claim_policy",
+      "config": {
+        "version": "1.1",
+        "source": "dbr_dev.joshuandegwa_gold.customer_claim_policy"
+      }
+    },
+    {
+      "name": "75072d37",
+      "displayName": "customer_claim_policy_telematics",
+      "config": {
+        "version": "1.1",
+        "source": "dbr_dev.joshuandegwa_gold.customer_claim_policy_telematics"
+      }
+    },
+    {
+      "name": "9ea70c50",
+      "displayName": "claim_metadata",
+      "config": {
+        "version": "1.1",
+        "source": "dbr_dev.joshuandegwa_bronze.claim_metadata",
+        "dimensions": [
+          {
+            "expr": "source.*"
+          }
+        ],
+        "measures": [
+          {
+            "name": "count",
+            "expr": "COUNT(*)",
+            "comment": "Represents the total number of rows in the dataset. Use this measure to count all",
+            "displayName": "Count"
+          }
+        ]
+      }
+    },
+    {
+      "name": "daily_sales",
+      "displayName": "Claims",
+      "config": {
+        "version": "1.1",
+        "source": "dbr_dev.joshuandegwa_gold.customer_claim_policy",
+        "dimensions": [
+          {
+            "name": "claim_date",
+            "expr": "claim_date",
+            "displayName": "Claim Date"
+          },
+          {
+            "name": "collision_type",
+            "expr": "collision_type",
+            "displayName": "Collision Type"
+          },
+          {
+            "name": "severity",
+            "expr": "severity",
+            "displayName": "Severity"
+          },
+          {
+            "name": "type",
+            "expr": "type",
+            "displayName": "Claim Type"
+          },
+          {
+            "name": "policytype",
+            "expr": "policytype",
+            "displayName": "Policy Type"
+          },
+          {
+            "name": "borough",
+            "expr": "borough",
+            "displayName": "Borough"
+          },
+          {
+            "name": "make",
+            "expr": "make",
+            "displayName": "Vehicle Make"
+          },
+          {
+            "name": "suspicious_activity",
+            "expr": "suspicious_activity",
+            "displayName": "Suspicious Activity"
+          }
+        ],
+        "measures": [
+          {
+            "name": "total_claims",
+            "expr": "COUNT(claim_no)",
+            "displayName": "Total Claims"
+          },
+          {
+            "name": "total_sum_insured",
+            "expr": "SUM(sum_insured)",
+            "displayName": "Total Sum Insured",
+            "format": {
+              "type": "currency",
+              "currencyCode": "USD",
+              "decimalPlaces": {
+                "type": "exact",
+                "places": 0.0
+              }
+            }
+          },
+          {
+            "name": "total_premium",
+            "expr": "SUM(premium)",
+            "displayName": "Total Premium",
+            "format": {
+              "type": "currency",
+              "currencyCode": "USD",
+              "decimalPlaces": {
+                "type": "exact",
+                "places": 0.0
+              }
+            }
+          },
+          {
+            "name": "total_claim_amount",
+            "expr": "SUM(total)",
+            "displayName": "Total Claim Amount",
+            "format": {
+              "type": "currency",
+              "currencyCode": "USD",
+              "decimalPlaces": {
+                "type": "exact",
+                "places": 0.0
+              }
+            }
+          },
+          {
+            "name": "suspicious_claims",
+            "expr": "COUNT(claim_no) FILTER (WHERE suspicious_activity = true)",
+            "displayName": "Suspicious Claims"
+          }
+        ]
+      }
+    }
+  ],
+  "pages": [
+    {
+      "name": "781aac74",
+      "displayName": "Insurance",
+      "layout": [
+        {
+          "widget": {
+            "name": "counter_claims",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "daily_sales",
+                  "fields": [
+                    {
+                      "name": "measure(total_claims)",
+                      "expression": "MEASURE(`total_claims`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Total Claims"
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "measure(total_claims)",
+                  "rowNumber": 0
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 13,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "counter_sum_insured",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "daily_sales",
+                  "fields": [
+                    {
+                      "name": "measure(total_sum_insured)",
+                      "expression": "MEASURE(`total_sum_insured`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Total Sum Insured"
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "measure(total_sum_insured)",
+                  "rowNumber": 0
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 13,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "counter_premium",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "daily_sales",
+                  "fields": [
+                    {
+                      "name": "measure(total_premium)",
+                      "expression": "MEASURE(`total_premium`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Total Premium"
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "measure(total_premium)",
+                  "rowNumber": 0
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 13,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "counter_suspicious",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "daily_sales",
+                  "fields": [
+                    {
+                      "name": "measure(suspicious_claims)",
+                      "expression": "MEASURE(`suspicious_claims`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Suspicious Claims"
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "measure(suspicious_claims)",
+                  "rowNumber": 0
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 9,
+            "y": 13,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "line_claims_trend",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "daily_sales",
+                  "fields": [
+                    {
+                      "name": "monthly(claim_date)",
+                      "expression": "DATE_TRUNC(\"MONTH\", `claim_date`)"
+                    },
+                    {
+                      "name": "measure(total_claims)",
+                      "expression": "MEASURE(`total_claims`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "Claims Over Time",
+                  "fields": []
+                }
+              },
+              "version": 3,
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "monthly(claim_date)",
+                  "displayName": "Month",
+                  "scale": {
+                    "type": "temporal"
+                  }
+                },
+                "y": {
+                  "fieldName": "measure(total_claims)",
+                  "displayName": "total_claims",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 16,
+            "width": 8,
+            "height": 5
+          }
+        },
+        {
+          "widget": {
+            "name": "pie_severity",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "daily_sales",
+                  "fields": [
+                    {
+                      "name": "measure(total_claims)",
+                      "expression": "MEASURE(`total_claims`)"
+                    },
+                    {
+                      "name": "severity",
+                      "expression": "`severity`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Claims by Severity"
+              },
+              "version": 3,
+              "widgetType": "pie",
+              "encodings": {
+                "angle": {
+                  "fieldName": "measure(total_claims)",
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "displayName": "total_claims"
+                },
+                "color": {
+                  "fieldName": "severity",
+                  "displayName": "severity",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 8,
+            "y": 16,
+            "width": 4,
+            "height": 5
+          }
+        },
+        {
+          "widget": {
+            "name": "bar_collision",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "daily_sales",
+                  "fields": [
+                    {
+                      "name": "collision_type",
+                      "expression": "`collision_type`"
+                    },
+                    {
+                      "name": "measure(total_claims)",
+                      "expression": "MEASURE(`total_claims`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Claims by Collision Type"
+              },
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "collision_type",
+                  "displayName": "collision_type",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "measure(total_claims)",
+                  "displayName": "total_claims",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "collision_type",
+                  "displayName": "collision_type",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 21,
+            "width": 6,
+            "height": 5
+          }
+        },
+        {
+          "widget": {
+            "name": "bar_borough",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "daily_sales",
+                  "fields": [
+                    {
+                      "name": "borough",
+                      "expression": "`borough`"
+                    },
+                    {
+                      "name": "measure(total_claims)",
+                      "expression": "MEASURE(`total_claims`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Claims by Borough"
+              },
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "borough",
+                  "displayName": "borough",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "measure(total_claims)",
+                  "displayName": "total_claims",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "borough",
+                  "displayName": "borough",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 21,
+            "width": 6,
+            "height": 5
+          }
+        },
+        {
+          "widget": {
+            "name": "filter_date",
+            "queries": [
+              {
+                "name": "dashboards/01f1bf83e7de1dc8b4f15fe40985eeaf/datasets/01f1bf858c27142280a1a07d3dfb2c6e_claim_date",
+                "query": {
+                  "datasetName": "daily_sales",
+                  "fields": [
+                    {
+                      "name": "claim_date",
+                      "expression": "`claim_date`"
+                    },
+                    {
+                      "name": "claim_date_associativity",
+                      "expression": "COUNT_IF(`associative_filter_predicate_group`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "title": "Claim Date Range"
+              },
+              "widgetType": "filter-date-range-picker",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "claim_date",
+                    "queryName": "dashboards/01f1bf83e7de1dc8b4f15fe40985eeaf/datasets/01f1bf858c27142280a1a07d3dfb2c6e_claim_date"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 2,
+            "width": 4,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "filter_severity",
+            "queries": [
+              {
+                "name": "dashboards/01f1bf83e7de1dc8b4f15fe40985eeaf/datasets/01f1bf858c27142280a1a07d3dfb2c6e_severity",
+                "query": {
+                  "datasetName": "daily_sales",
+                  "fields": [
+                    {
+                      "name": "severity",
+                      "expression": "`severity`"
+                    },
+                    {
+                      "name": "severity_associativity",
+                      "expression": "COUNT_IF(`associative_filter_predicate_group`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "title": {
+                  "value": "Severity",
+                  "fields": []
+                }
+              },
+              "widgetType": "filter-multi-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "severity",
+                    "queryName": "dashboards/01f1bf83e7de1dc8b4f15fe40985eeaf/datasets/01f1bf858c27142280a1a07d3dfb2c6e_severity"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 4,
+            "y": 2,
+            "width": 4,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "filter_collision",
+            "queries": [
+              {
+                "name": "dashboards/01f1bf83e7de1dc8b4f15fe40985eeaf/datasets/01f1bf858c27142280a1a07d3dfb2c6e_collision_type",
+                "query": {
+                  "datasetName": "daily_sales",
+                  "fields": [
+                    {
+                      "name": "collision_type",
+                      "expression": "`collision_type`"
+                    },
+                    {
+                      "name": "collision_type_associativity",
+                      "expression": "COUNT_IF(`associative_filter_predicate_group`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "frame": {
+                "showTitle": true,
+                "title": "Collision Type"
+              },
+              "widgetType": "filter-multi-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "collision_type",
+                    "queryName": "dashboards/01f1bf83e7de1dc8b4f15fe40985eeaf/datasets/01f1bf858c27142280a1a07d3dfb2c6e_collision_type"
+                  }
+                ]
+              }
+            }
+          },
+          "position": {
+            "x": 8,
+            "y": 2,
+            "width": 4,
+            "height": 2
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "widgetHeaderAlignment": "ALIGNMENT_UNSPECIFIED"
+    },
+    "applyModeEnabled": false
+  }
+}
