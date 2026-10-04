@@ -52,60 +52,59 @@ with st.form("claim_form"):
             cleaned_policy = input_policy.strip()
             
             with st.spinner("Validating policy and running risk assessment..."):
-                try:
-                    # 1. Live query against bronze table to fetch policy limits and metadata
-                    query = f"""
-                        SELECT POLICY_NO, CUST_ID, MAKE, MODEL, SUM_INSURED 
-                        FROM joshuandegwa_bronze.policies 
-                        WHERE POLICY_NO = '{cleaned_policy}' 
-                        LIMIT 1
-                    """
-                    policy_df = spark.sql(query).toPandas()
-                    
-                    if policy_df.empty:
-                        st.error(f"❌ Policy '{cleaned_policy}' not found in our records. Please check the number.")
+                # TODO: replace with live Databricks SQL query once sql connector is wired up
+                MOCK_POLICIES = {
+                    "102122649": {
+                        "POLICY_NO": "102122649",
+                        "CUST_ID": 9990.0,
+                        "MAKE": "RENAULT",
+                        "MODEL": "MEGANE",
+                        "SUM_INSURED": 32000.0
+                    }
+                }
+                policy = MOCK_POLICIES.get(cleaned_policy)
+
+                if policy is None:
+                    st.error(f"❌ Policy '{cleaned_policy}' not found in our records. Please check the number.")
+                else:
+                    sum_insured = float(policy.get("SUM_INSURED", 0.0))
+
+                    # Enforce coverage limit validation upfront
+                    if claim_amount > sum_insured:
+                        st.error(f"❌ **Claim Exceeds Coverage:** The entered amount (${claim_amount:,.2f}) is higher than your maximum policy limit (${sum_insured:,.2f}) for your {policy.get('MAKE')} {policy.get('MODEL')}.")
                     else:
-                        policy = policy_df.iloc[0].to_dict()
-                        sum_insured = float(policy.get("SUM_INSURED", 0.0))
-                        
-                        # 2. Enforce coverage limit validation upfront
-                        if claim_amount > sum_insured:
-                            st.error(f"❌ **Claim Exceeds Coverage:** The entered amount (${claim_amount:,.2f}) is higher than your maximum policy limit (${sum_insured:,.2f}) for your {policy.get('MAKE')} {policy.get('MODEL')}.")
+                        claim_no = str(uuid.uuid4())
+                        file_path = f"/Volumes/joshuandegwa_gold/default/damage_images/{claim_no}_{uploaded_file.name}" if uploaded_file else "N/A"
+
+                        # ML Model Scoring Endpoint Integration
+                        # TODO: wire up endpoint once it is deployed
+                        is_suspicious = False
+                        image_rules_passed = True
+
+                        try:
+                            import mlflow.deployments
+                            client = mlflow.deployments.get_deploy_client("databricks")
+                            response = client.predict(
+                                endpoint="joshuandegwa-claim-risk-endpoint",
+                                inputs=[{
+                                    "policy_no": cleaned_policy,
+                                    "claim_amount": claim_amount,
+                                    "sum_insured": sum_insured,
+                                    "image_path": file_path,
+                                    "collision_type": collision_type,
+                                    "severity": self_assessed_severity
+                                }]
+                            )
+                            is_suspicious = bool(response[0].get("is_high_risk", False))
+                            image_rules_passed = bool(response[0].get("image_rules_passed", True))
+                        except Exception:
+                            # Fallback logic if endpoint is not yet deployed or warming up
+                            if claim_amount > (sum_insured * 0.75) or uploaded_file is None:
+                                is_suspicious = True
+
+                        # User Feedback Routing (Panic-free)
+                        if is_suspicious or not image_rules_passed:
+                            st.info(f"ℹ️ **Status Update:** Claim received for your {policy.get('MAKE')} {policy.get('MODEL')}. It has been routed for standard verification and our team will follow up shortly.")
                         else:
-                            claim_no = str(uuid.uuid4())
-                            file_path = f"/Volumes/joshuandegwa_gold/default/damage_images/{claim_no}_{uploaded_file.name}" if uploaded_file else "N/A"
-
-                            # 3. ML Model Scoring Endpoint Integration
-                            is_suspicious = False
-                            image_rules_passed = True
-                            
-                            try:
-                                import mlflow.deployments
-                                client = mlflow.deployments.get_deploy_client("databricks")
-                                response = client.predict(
-                                    endpoint="joshuandegwa-claim-risk-endpoint",
-                                    inputs=[{
-                                        "policy_no": cleaned_policy,
-                                        "claim_amount": claim_amount, 
-                                        "sum_insured": sum_insured,
-                                        "image_path": file_path,
-                                        "collision_type": collision_type,
-                                        "severity": self_assessed_severity
-                                    }]
-                                />
-                                is_suspicious = bool(response[0].get("is_high_risk", False))
-                                image_rules_passed = bool(response[0].get("image_rules_passed", True))
-                            except Exception:
-                                # Fallback logic if endpoint is warming up
-                                if claim_amount > (sum_insured * 0.75) or uploaded_file is None:
-                                    is_suspicious = True
-
-                            # 4. User Feedback Routing (Panic-free)
-                            if is_suspicious or not image_rules_passed:
-                                st.info(f"ℹ️ **Status Update:** Claim received for your {policy.get('MAKE')} {policy.get('MODEL')}. It has been routed for standard verification and our team will follow up shortly.")
-                            else:
-                                st.success(f"✅ **Claim Verified & Approved!** Your claim for policy `{cleaned_policy}` has passed automated checks. Expect payout processing within 5 business days.")
-                                st.balloons()
-                                
-                except Exception as e:
-                    st.error(f"❌ System error during verification: {str(e)}")
+                            st.success(f"✅ **Claim Verified & Approved!** Your claim for policy `{cleaned_policy}` has passed automated checks. Expect payout processing within 5 business days.")
+                            st.balloons()
