@@ -1,5 +1,19 @@
+# command: [
+#   "streamlit", 
+#   "run",
+#   "app.py"
+# ]
+version: 1
+name: "Smart Claims Portal"
+description: "End-to-end insurance claim submission and automated ML analysis portal."
 command: [
   "streamlit", 
   "run",
-  "app.py"
+  "Auth.py",
+  "--server.address=0.0.0.0",
+  "--server.port=8501"
 ]
+
+env:
+  - name: DATABRICKS_WAREHOUSE_HTTP_PATH
+    value: "/sql/1.0/warehouses/3ed106620db591d9"
