@@ -1,12 +1,12 @@
+import dlt
 import geopy
 import pandas as pd
-from pyspark.sql.functions import col, lit, concat, pandas_udf, avg
+from pyspark.sql.functions import col, pandas_udf, avg
 from typing import Iterator
 import random
-
-catalog = "dbr_dev"
-silver_schema = "joshuandegwa_silver"
-gold_schema = "joshuandegwa_gold"
+catalog       = spark.conf.get("pipeline.catalog")
+silver_schema = spark.conf.get("silver_schema")
+gold_schema   = spark.conf.get("gold_schema")
 
 def geocode(geolocator, address):
     try:

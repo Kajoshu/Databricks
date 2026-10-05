@@ -2,13 +2,12 @@ import dlt
 from pyspark.sql.functions import col, current_timestamp, from_json, struct
 from pyspark.sql.types import DoubleType, StringType, StructField, StructType
 
-# 1. Confluent Cloud Connection Parameters
-CONFLUENT_BOOTSTRAP = "pkc-921jm.us-east-2.aws.confluent.cloud:9092"
-CONFLUENT_API_KEY = "443GI6WDMGYIYHYD"
-CONFLUENT_API_SECRET = (
-    "cfltvgM+Ukf0dlkXLSyOyxLOFB6mclAITEyKW4OJjofB64y2HKCw3z1gYQYKStyQ"
-)
-TOPIC_NAME = "telemetry-stream"
+# 1. Confluent Cloud Connection Parameters — loaded from pipeline configuration
+# To use secrets, set values in the pipeline YAML as: {{secrets/scope/key}}
+CONFLUENT_BOOTSTRAP  = spark.conf.get("confluent.bootstrap")
+TOPIC_NAME           = spark.conf.get("confluent.topic")
+CONFLUENT_API_KEY    = spark.conf.get("confluent.api_key")
+CONFLUENT_API_SECRET = spark.conf.get("confluent.api_secret")
 
 # 2. Define the schema matching your telemetry payload data
 telemetry_schema = StructType([
@@ -39,7 +38,7 @@ def telemetry_landing():
       .option("kafka.sasl.mechanism", "PLAIN")
       .option(
           "kafka.sasl.jaas.config",
-          "kafkashaded.org.apache.kafka.common.security.plain.PlainLoginModule"
+          "org.apache.kafka.common.security.plain.PlainLoginModule"
           f' required username="{CONFLUENT_API_KEY}" password="{CONFLUENT_API_SECRET}";',
       )
       .load()
@@ -49,7 +48,7 @@ def telemetry_landing():
   parsed_stream = (
       raw_stream.selectExpr(
           "CAST(value AS STRING) AS raw_json",
-          "key AS message_key",
+          "CAST(key AS STRING) AS message_key",
           "topic",
           "partition",
           "offset",

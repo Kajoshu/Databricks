@@ -37,7 +37,7 @@ resources:
             - task_key: MedallionETL
           spark_python_task:
             python_file: ../src/run_pipeline_and_ml.py
-          existing_cluster_id: "1003-134810-h8i9txnm"
+          existing_cluster_id: "1005-160703-dj1e2g3x"
           libraries:
             - pypi:
                 package: transformers==4.49.0
@@ -51,5 +51,5 @@ resources:
                 package: datasets==2.20.0
             - pypi:
                 package: mlflow==2.20.2
-            - pypi:
-                package: flash-attn
+            # - pypi:
+            #     package: flash-attn

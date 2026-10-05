@@ -1,8 +1,7 @@
 resources:
   pipelines:
-    postgres_ingestion_test_pipeline:
-      name: "PostgresIngestion_test"
-      # pipeline_type: "MANAGED_INGESTION"
+    postgres_ingestion_pipeline:
+      name: "PostgresIngestion"
       catalog: "dbr_dev"
       schema: "joshuandegwa_bronze"
       channel: "PREVIEW"

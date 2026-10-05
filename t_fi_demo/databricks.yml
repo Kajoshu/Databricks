@@ -12,7 +12,7 @@ targets:
     mode: development
     default: true
     workspace:
-      host: https://adb-7405604503619901.1.azuredatabricks.net
+      host: https://dbc-9be1f405-fc7e.cloud.databricks.com
       # host: https://dbc-c0987de1-e4e2.cloud.databricks.com
       # host: https://dbc-d6616b16-db43.cloud.databricks.com
 
@@ -20,7 +20,7 @@ targets:
   prod:
     mode: production
     workspace:
-      host: https://adb-7405604503619901.1.azuredatabricks.net
+      host: https://dbc-9be1f405-fc7e.cloud.databricks.com
       # host: https://dbc-c0987de1-e4e2.cloud.databricks.com
       # host: https://dbc-d6616b16-db43.cloud.databricks.com
       # We always use /Users/josurekamotho@gmail.com for all resources to make sure we only have a single copy.

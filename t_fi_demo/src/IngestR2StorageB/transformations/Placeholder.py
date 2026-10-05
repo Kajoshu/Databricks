@@ -1,20 +1,22 @@
 import dlt
 
-# --- 1. Claims Configuration ---
-claims_base_path = "/Volumes/dbr_dev/joshuandegwa_bronze/images/claims"
-# Pointing directly to your actual source folder where the claim images live:
-claims_incoming = f"{claims_base_path}/images"
-claims_archive = f"{claims_base_path}/archive"
+# Derive all paths from the pipeline-resolved catalog and schema
+_catalog = spark.conf.get("pipeline.catalog")
+_schema  = spark.conf.get("pipeline.schema")
+_vol     = f"/Volumes/{_catalog}/{_schema}"
+
+CLAIMS_BASE_PATH     = f"{_vol}/images/claims"
+CLAIMS_INCOMING      = f"{CLAIMS_BASE_PATH}/images"
+CLAIMS_ARCHIVE       = f"{CLAIMS_BASE_PATH}/archive"
+CLAIMS_METADATA_PATH = f"{CLAIMS_BASE_PATH}/metadata"
+CLAIMS_SCHEMA_LOC    = f"{CLAIMS_BASE_PATH}/_schemas/claim_metadata_schema"
+TRAINING_BASE_PATH   = f"{_vol}/images/training_imgs"
+TRAINING_SCHEMA_LOC  = f"{_vol}/images/training_imgs/_schemas/training_images_schema"
 
 archive_configs = {
-    "cloudFiles.cleanSource": "MOVE",
-    "cloudFiles.cleanSource.retentionDuration": "1 minute",
-    "cloudFiles.cleanSource.moveDestination": claims_archive,
+    "cloudFiles.cleanSource": "archive",
+    "cloudFiles.archive.dir": CLAIMS_ARCHIVE,
 }
-
-# --- 2. Training Images Configuration ---
-training_base_path = "/Volumes/dbr_dev/joshuandegwa_bronze/images/training_imgs"
-training_schema_loc = f"{training_base_path}/_schemas/training_images_schema"
 
 
 # --- Table 1: Claim Images (with auto-archive) ---
@@ -28,7 +30,7 @@ def claim_images():
       spark.readStream.format("cloudFiles")
       .option("cloudFiles.format", "binaryFile")
       .options(**archive_configs)
-      .load(claims_incoming)
+      .load(CLAIMS_INCOMING)
   )
 
 # --- Table 2: Claim Metadata (CSV) ---
@@ -48,9 +50,9 @@ def claim_metadata():
       .option("inferSchema", "true")
       .option(
           "cloudFiles.schemaLocation",
-          f"{claims_base_path}/_schemas/claim_metadata_schema",
+          CLAIMS_SCHEMA_LOC,
       )
-      .load(f"{claims_base_path}/metadata")
+      .load(CLAIMS_METADATA_PATH)
   )
 
 
@@ -67,6 +69,6 @@ def training_images():
   return (
       spark.readStream.format("cloudFiles")
       .option("cloudFiles.format", "binaryFile")
-      .option("cloudFiles.schemaLocation", training_schema_loc)
-      .load(training_base_path)
+      .option("cloudFiles.schemaLocation", TRAINING_SCHEMA_LOC)
+      .load(TRAINING_BASE_PATH)
   )

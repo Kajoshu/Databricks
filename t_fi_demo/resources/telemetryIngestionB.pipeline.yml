@@ -5,6 +5,11 @@ resources:
       libraries:
         - glob:
             include: ../src/telemetryIngestionB/transformations/**
+      configuration:
+        confluent.bootstrap: "pkc-921jm.us-east-2.aws.confluent.cloud:9092"
+        confluent.topic: "telemetry-stream"
+        confluent.api_key: ""
+        confluent.api_secret: ""
       serverless: true
       catalog: dbr_dev
       schema: joshuandegwa_bronze

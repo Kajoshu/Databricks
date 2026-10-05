@@ -1,11 +1,11 @@
+import dlt
 from pyspark.sql.functions import (
     col, to_date, date_format, trim, initcap,
     split, size, when, concat, lit, abs, to_timestamp, regexp_extract
 )
-
-catalog = "dbr_dev"
-bronze_schema = "joshuandegwa_bronze"
-silver_schema = "joshuandegwa_silver"
+catalog       = spark.conf.get("pipeline.catalog")
+bronze_schema = spark.conf.get("pipeline.schema")
+silver_schema = spark.conf.get("silver_schema")
 
 # --- CLEAN TELEMATICS ---
 @dlt.table(
