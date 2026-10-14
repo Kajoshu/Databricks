@@ -49,7 +49,7 @@ def telemetry_landing():
   parsed_stream = (
       raw_stream.selectExpr(
           "CAST(value AS STRING) AS raw_json",
-          "key AS message_key",
+          "CAST(key AS STRING) AS message_key",
           "topic",
           "partition",
           "offset",

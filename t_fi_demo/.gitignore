@@ -1,1 +1,12 @@
 .databricks/
+
+# Model checkpoints and training artifacts
+resnet-claims-finetuned/
+**/checkpoint-*/
+**/runs/
+
+# Large binary model files
+*.safetensors
+*.pt
+*.pth
+*.bin
