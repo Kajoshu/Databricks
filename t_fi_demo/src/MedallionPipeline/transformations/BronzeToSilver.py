@@ -83,17 +83,21 @@ def customer():
         .drop("name", "_rescued_data")
     )
 
-# --- CLEAN TRAINING IMAGES ---
+# --- CLEAN TRAINING IMAGES (2-class: major / minor only) ---
 @dlt.table(
     name=f"{catalog}.{silver_schema}.training_images",
-    comment="Enriched accident training images",
+    comment="Enriched accident training images — filtered to major/minor only",
     table_properties={"quality": "silver"}
 )
+@dlt.expect("valid_label", "label IN ('major', 'minor')")
 def training_images():
     df = dlt.readStream(f"{catalog}.{bronze_schema}.training_images")
-    return df.withColumn(
-        "label",
-        regexp_extract("path", r"/(\d+)-([a-zA-Z]+)(?: \(\d+\))?\.png$", 2)
+    return (
+        df.withColumn(
+            "label",
+            regexp_extract("path", r"/(\d+)-([a-zA-Z]+)(?: \(\d+\))?\.png$", 2)
+        )
+        .filter(col("label").isin("major", "minor"))
     )
 
 # --- CLEAN CLAIM IMAGES ---
