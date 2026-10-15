@@ -23,10 +23,63 @@
     },
     {
       "name": "a360d572",
-      "displayName": "claim_images_predicted",
+      "displayName": "Claim Images Predicted",
       "config": {
         "version": "1.1",
-        "source": "dbr_dev.joshuandegwa_gold.claim_images_predicted"
+        "source": "SELECT\n  image_name,\n  claim_no,\n  chassis_no,\n  damage_prediction.label AS predicted_label,\n  damage_prediction.score AS confidence_score,\n  needs_review\nFROM dbr_dev.joshuandegwa_gold.claim_images_predicted\n",
+        "dimensions": [
+          {
+            "name": "image_name",
+            "expr": "image_name"
+          },
+          {
+            "name": "claim_no",
+            "expr": "claim_no"
+          },
+          {
+            "name": "chassis_no",
+            "expr": "chassis_no"
+          },
+          {
+            "name": "predicted_label",
+            "expr": "predicted_label",
+            "displayName": "Predicted Label"
+          },
+          {
+            "name": "confidence_score",
+            "expr": "confidence_score",
+            "displayName": "Confidence Score"
+          },
+          {
+            "name": "needs_review",
+            "expr": "needs_review",
+            "displayName": "Needs Review"
+          }
+        ],
+        "measures": [
+          {
+            "name": "image_count",
+            "expr": "COUNT(*)",
+            "displayName": "Image Count"
+          },
+          {
+            "name": "review_count",
+            "expr": "COUNT(*) FILTER (WHERE needs_review = true)",
+            "displayName": "Images for Review"
+          },
+          {
+            "name": "avg_confidence",
+            "expr": "AVG(confidence_score)",
+            "displayName": "Avg Confidence",
+            "format": {
+              "type": "percentage",
+              "decimalPlaces": {
+                "type": "exact",
+                "places": 1.0
+              }
+            }
+          }
+        ]
       }
     },
     {
@@ -163,6 +216,28 @@
             "name": "suspicious_claims",
             "expr": "COUNT(claim_no) FILTER (WHERE suspicious_activity = true)",
             "displayName": "Suspicious Claims"
+          }
+        ]
+      }
+    },
+    {
+      "name": "training_data",
+      "displayName": "Training Data",
+      "config": {
+        "version": "1.1",
+        "source": "dbr_dev.joshuandegwa_silver.training_images_resized",
+        "dimensions": [
+          {
+            "name": "label",
+            "expr": "label",
+            "displayName": "Damage Label"
+          }
+        ],
+        "measures": [
+          {
+            "name": "image_count",
+            "expr": "COUNT(*)",
+            "displayName": "Training Images"
           }
         ]
       }
@@ -729,6 +804,471 @@
             "y": 2,
             "width": 4,
             "height": 2
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    },
+    {
+      "name": "review",
+      "displayName": "Claims & Images Under Review",
+      "layout": [
+        {
+          "widget": {
+            "name": "header",
+            "multilineTextboxSpec": {
+              "lines": [
+                "## Claims & Images Under Review\n",
+                "Low-confidence predictions (score < 0.5) flagged for human review"
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "counter_review",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "a360d572",
+                  "fields": [
+                    {
+                      "name": "measure(review_count)",
+                      "expression": "MEASURE(`review_count`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Images for Review"
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "measure(review_count)",
+                  "rowNumber": 0
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 2,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "counter_total",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "a360d572",
+                  "fields": [
+                    {
+                      "name": "measure(image_count)",
+                      "expression": "MEASURE(`image_count`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Total Scored Images"
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "measure(image_count)",
+                  "rowNumber": 0
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 2,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "counter_avg_conf",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "a360d572",
+                  "fields": [
+                    {
+                      "name": "measure(avg_confidence)",
+                      "expression": "MEASURE(`avg_confidence`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Avg Confidence"
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "measure(avg_confidence)",
+                  "rowNumber": 0
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 2,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "counter_training",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "training_data",
+                  "fields": [
+                    {
+                      "name": "measure(image_count)",
+                      "expression": "MEASURE(`image_count`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Training Images"
+              },
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "measure(image_count)",
+                  "rowNumber": 0
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 9,
+            "y": 2,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "bar_review_by_label",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "a360d572",
+                  "fields": [
+                    {
+                      "name": "predicted_label",
+                      "expression": "`predicted_label`"
+                    },
+                    {
+                      "name": "measure(review_count)",
+                      "expression": "MEASURE(`review_count`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Review Queue by Predicted Label"
+              },
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "predicted_label",
+                  "displayName": "predicted_label",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "measure(review_count)",
+                  "displayName": "review_count",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "predicted_label",
+                  "displayName": "predicted_label",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 5,
+            "width": 6,
+            "height": 5
+          }
+        },
+        {
+          "widget": {
+            "name": "bar_training_by_label",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "training_data",
+                  "fields": [
+                    {
+                      "name": "label",
+                      "expression": "`label`"
+                    },
+                    {
+                      "name": "measure(image_count)",
+                      "expression": "MEASURE(`image_count`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Training Images by Label"
+              },
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "label",
+                  "displayName": "label",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "measure(image_count)",
+                  "displayName": "image_count",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "label",
+                  "displayName": "label",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 5,
+            "width": 6,
+            "height": 5
+          }
+        },
+        {
+          "widget": {
+            "name": "table_review",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "a360d572",
+                  "fields": [
+                    {
+                      "name": "claim_no",
+                      "expression": "`claim_no`"
+                    },
+                    {
+                      "name": "chassis_no",
+                      "expression": "`chassis_no`"
+                    },
+                    {
+                      "name": "image_name",
+                      "expression": "`image_name`"
+                    },
+                    {
+                      "name": "predicted_label",
+                      "expression": "`predicted_label`"
+                    },
+                    {
+                      "name": "confidence_score",
+                      "expression": "`confidence_score`"
+                    }
+                  ],
+                  "disaggregated": true
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Claims Under Review"
+              },
+              "version": 2,
+              "widgetType": "table",
+              "encodings": {
+                "columns": [
+                  {
+                    "fieldName": "claim_no"
+                  },
+                  {
+                    "fieldName": "chassis_no"
+                  },
+                  {
+                    "fieldName": "image_name"
+                  },
+                  {
+                    "fieldName": "predicted_label"
+                  },
+                  {
+                    "fieldName": "confidence_score"
+                  }
+                ]
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 10,
+            "width": 12,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "bar_confidence_dist",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "a360d572",
+                  "fields": [
+                    {
+                      "name": "predicted_label",
+                      "expression": "`predicted_label`"
+                    },
+                    {
+                      "name": "confidence_score",
+                      "expression": "`confidence_score`"
+                    },
+                    {
+                      "name": "measure(image_count)",
+                      "expression": "MEASURE(`image_count`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "frame": {
+                "showTitle": true,
+                "title": "Confidence Score Distribution"
+              },
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "confidence_score",
+                  "displayName": "confidence_score",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "measure(image_count)",
+                  "displayName": "image_count",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "color": {
+                  "fieldName": "predicted_label",
+                  "displayName": "predicted_label",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 16,
+            "width": 12,
+            "height": 5
           }
         }
       ],
