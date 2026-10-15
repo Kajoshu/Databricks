@@ -31,7 +31,7 @@ resources:
             - task_key: PostgresIngest
           pipeline_task:
             pipeline_id: ${resources.pipelines.medallionpipeline.id}
-        # 5. NEW: ML Inference & Rules (Runs right after MedallionETL finishes)
+        # 5. ML Inference & Rules (Runs after MedallionETL finishes)
         - task_key: MLInferenceAndRules
           depends_on:
             - task_key: MedallionETL

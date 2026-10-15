@@ -1,0 +1,51 @@
+resources:
+  jobs:
+    ModelTrainingAndRules:
+      name: "Model Training & Rules"
+      queue:
+        enabled: true
+      schedule:
+        quartz_cron_expression: "0 0 23 ? * SUN"
+        timezone_id: "UTC"
+
+      tasks:
+        # 1. Retrain the damage classification model
+        - task_key: ModelTraining
+          notebook_task:
+            notebook_path: ../Train.ipynb
+          existing_cluster_id: "1014-205057-3ej7u51p"  # Smart Claims GPU (g4dn.xlarge)
+          libraries:
+            - pypi:
+                package: transformers==4.49.0
+            - pypi:
+                package: torchvision==0.20.1
+            - pypi:
+                package: accelerate==1.4.0
+            - pypi:
+                package: evaluate
+            - pypi:
+                package: datasets==2.20.0
+            - pypi:
+                package: mlflow==2.20.2
+
+        # 2. Evaluate model quality and flag misclassified/low-confidence images
+        - task_key: ModelReview
+          depends_on:
+            - task_key: ModelTraining
+          notebook_task:
+            notebook_path: ../ModelEvaluationReview.ipynb
+          existing_cluster_id: "1014-205057-3ej7u51p"  # Smart Claims GPU (g4dn.xlarge)
+          libraries:
+            - pypi:
+                package: mlflow==2.20.2
+
+        # 3. Refresh predicted table and rules
+        - task_key: RuleEngine
+          depends_on:
+            - task_key: ModelReview
+          notebook_task:
+            notebook_path: ../RuleEngine.ipynb
+          existing_cluster_id: "1005-160703-dj1e2g3x"  # SmartCalimsCompute (CPU)
+          libraries:
+            - pypi:
+                package: mlflow==2.20.2
