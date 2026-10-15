@@ -11,11 +11,14 @@ gold_df = spark.read.table(gold_table)
 
 print("--- 2. Running ML Model Inference via Spark UDF ---")
 # Reference your registered model in Unity Catalog
-model_uri = "models:/dbr_dev.joshuandegwa_gold.claims_damage_level/2"
+model_uri = "models:/dbr_dev.joshuandegwa_gold.claims_damage_level@prod"
 
 # Load model as a native Spark UDF
 # This distributes predictions efficiently across the cluster workers
-loaded_model_udf = mlflow.pyfunc.spark_udf(spark, model_uri=model_uri)  # Ensure environment dependencies are met or replace with a compatible model URI.
+# env_manager="local" is recommended on Databricks ML Runtime where cluster
+# libraries are pinned to match training deps (see job YAML). Avoids conda
+# cold-start overhead while keeping reproducibility via library version pins.
+loaded_model_udf = mlflow.pyfunc.spark_udf(spark, model_uri=model_uri, env_manager="local")
 
 # Score incoming records by passing the relevant dataframe columns into the model UDF
 # (struct(*map(col, gold_df.columns)) passes all columns, or specify exact feature columns)
