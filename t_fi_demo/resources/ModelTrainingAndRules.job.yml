@@ -13,7 +13,7 @@ resources:
         - task_key: ModelTraining
           notebook_task:
             notebook_path: ../Train.ipynb
-          existing_cluster_id: "1014-205057-3ej7u51p"  # Smart Claims GPU (g4dn.xlarge)
+          existing_cluster_id: "1005-160703-dj1e2g3x"  # SmartCalimsCompute (CPU)
           libraries:
             - pypi:
                 package: transformers==4.49.0
@@ -34,7 +34,7 @@ resources:
             - task_key: ModelTraining
           notebook_task:
             notebook_path: ../ModelEvaluationReview.ipynb
-          existing_cluster_id: "1014-205057-3ej7u51p"  # Smart Claims GPU (g4dn.xlarge)
+          existing_cluster_id: "1005-160703-dj1e2g3x"  # SmartCalimsCompute (CPU)
           libraries:
             - pypi:
                 package: mlflow==2.20.2
