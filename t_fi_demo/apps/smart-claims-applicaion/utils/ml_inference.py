@@ -12,7 +12,7 @@ import random
 import pandas as pd
 import streamlit as st
 
-ENDPOINT_NAME = "claims_damage_level"
+from config import SERVING_ENDPOINT_NAME
 
 
 def _get_serving_client():
@@ -36,7 +36,7 @@ def predict_damage(image_bytes: bytes) -> dict:
         b64_content = base64.b64encode(image_bytes).decode("utf-8")
 
         response = w.serving_endpoints.query(
-            name=ENDPOINT_NAME,
+            name=SERVING_ENDPOINT_NAME,
             dataframe_records=[{"content": b64_content}],
         )
 

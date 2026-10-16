@@ -3,6 +3,7 @@ import streamlit as st
 import json
 from db import query_df, execute_write
 from utils.rule_engine import evaluate_rules
+from config import CLAIM_IMAGES_VOLUME, CLAIMS_SYNCED_TABLE, ACTIONS_TABLE, CLAIMS_LIST_LIMIT
 
 
 def render():
@@ -38,10 +39,10 @@ def render():
         like = f"%{search_term}%"
         claims_list = query_df(
             f"SELECT claim_no, policy_no, firstname || ' ' || lastname AS customer_name "
-            f"FROM smart_claims.claims_synced "
+            f"FROM {CLAIMS_SYNCED_TABLE} "
             f"WHERE (claim_no ILIKE %s OR policy_no ILIKE %s "
             f"  OR firstname ILIKE %s OR lastname ILIKE %s) {sev_where} "
-            f"ORDER BY claim_date DESC LIMIT 50",
+            f"ORDER BY claim_date DESC LIMIT {CLAIMS_LIST_LIMIT}",
             (like, like, like, like),
         )
         if claims_list.empty:
@@ -50,9 +51,9 @@ def render():
     else:
         claims_list = query_df(
             f"SELECT claim_no, policy_no, firstname || ' ' || lastname AS customer_name "
-            f"FROM smart_claims.claims_synced "
+            f"FROM {CLAIMS_SYNCED_TABLE} "
             f"WHERE 1=1 {sev_where} "
-            f"ORDER BY claim_date DESC LIMIT 50"
+            f"ORDER BY claim_date DESC LIMIT {CLAIMS_LIST_LIMIT}"
         )
         if claims_list.empty:
             st.info("No claims available.")
@@ -82,7 +83,7 @@ def render():
     # ---- Load full claim ----
     claim_no = options[cur_idx]
     claim_df = query_df(
-        "SELECT * FROM smart_claims.claims_synced WHERE claim_no = %s", (claim_no,)
+        f"SELECT * FROM {CLAIMS_SYNCED_TABLE} WHERE claim_no = %s", (claim_no,)
     )
     if claim_df.empty:
         st.error("Claim not found.")
@@ -169,7 +170,7 @@ def render():
             try:
                 from databricks.sdk import WorkspaceClient
                 w = WorkspaceClient()
-                vol_path = f"/Volumes/dbr_dev/joshuandegwa_bronze/images/claims/images/{img_name}"
+                vol_path = f"{CLAIM_IMAGES_VOLUME}/{img_name}"
                 resp = w.files.download(vol_path)
                 img_bytes = resp.contents.read()
                 st.image(img_bytes, caption=img_name, use_column_width=True)
@@ -197,7 +198,7 @@ def render():
     with a1:
         if st.button("\u2705 Approve", type="primary", use_container_width=True):
             execute_write(
-                "INSERT INTO public.claim_actions "
+                f"INSERT INTO {ACTIONS_TABLE} "
                 "(claim_no, action_type, admin_email, comment) VALUES (%s,%s,%s,%s)",
                 (claim_no, "approve", "admin@smartclaims.com", "Approved after review"),
             )
@@ -205,7 +206,7 @@ def render():
     with a2:
         if st.button("\u274c Deny", type="secondary", use_container_width=True):
             execute_write(
-                "INSERT INTO public.claim_actions "
+                f"INSERT INTO {ACTIONS_TABLE} "
                 "(claim_no, action_type, admin_email, comment) VALUES (%s,%s,%s,%s)",
                 (claim_no, "deny", "admin@smartclaims.com", "Denied after review"),
             )
@@ -214,7 +215,7 @@ def render():
         note = st.text_input("Add a note", placeholder="Enter note\u2026", key="admin_note")
         if note and st.button("\U0001f4ac Add Note"):
             execute_write(
-                "INSERT INTO public.claim_actions "
+                f"INSERT INTO {ACTIONS_TABLE} "
                 "(claim_no, action_type, admin_email, comment) VALUES (%s,%s,%s,%s)",
                 (claim_no, "note", "admin@smartclaims.com", note),
             )
