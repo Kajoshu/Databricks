@@ -2,6 +2,7 @@
 import streamlit as st
 from db import query_df, execute_write
 from utils.rule_engine import evaluate_rules
+from config import CLAIMS_SYNCED_TABLE, ACTIONS_TABLE
 
 
 def render():
@@ -17,7 +18,7 @@ def render():
     try:
         policy_rows = query_df(
             "SELECT sum_insured, pol_eff_date, pol_expiry_date, telematics_speed "
-            "FROM smart_claims.claims_synced WHERE policy_no = %s LIMIT 1",
+            f"FROM {CLAIMS_SYNCED_TABLE} WHERE policy_no = %s LIMIT 1",
             (claim["policy_no"],),
         )
         if not policy_rows.empty:
@@ -84,7 +85,7 @@ def render():
     # Record auto-evaluation
     try:
         execute_write(
-            "INSERT INTO public.claim_actions (claim_no, action_type, admin_email, comment) "
+            f"INSERT INTO {ACTIONS_TABLE} (claim_no, action_type, admin_email, comment) "
             "VALUES (%s, %s, %s, %s)",
             (
                 claim["claim_no"],

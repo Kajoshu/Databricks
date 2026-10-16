@@ -3,6 +3,7 @@ import streamlit as st
 from components.kpi_cards import render_kpi_cards
 from components.filters import render_filters
 from db import query_df
+from config import CLAIMS_SYNCED_TABLE
 
 
 def render():
@@ -48,7 +49,7 @@ def render():
                    (damage_prediction->>'score')::float * 100, 0
                )::int AS risk_score,
                firstname || ' ' || lastname AS customer_name
-        FROM smart_claims.claims_synced
+        FROM {CLAIMS_SYNCED_TABLE}
         WHERE {where}
         ORDER BY claim_date DESC
         LIMIT 100

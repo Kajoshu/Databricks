@@ -1,6 +1,7 @@
 """Customer Mode — Check Claim Status page."""
 import streamlit as st
 from db import query_df
+from config import CLAIMS_SYNCED_TABLE
 
 
 def render():
@@ -20,12 +21,12 @@ def render():
     # Look up the claim
     try:
         df = query_df(
-            """
+            f"""
             SELECT claim_no, policy_no, claim_date, total, severity,
                    collision_type, firstname, lastname, borough, address,
                    CASE WHEN needs_review THEN 'Under Review' ELSE 'Approved' END AS status,
                    damage_prediction, image_name
-            FROM smart_claims.claims_synced
+            FROM {CLAIMS_SYNCED_TABLE}
             WHERE claim_no = %s
             LIMIT 1
             """,

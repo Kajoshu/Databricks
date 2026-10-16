@@ -1,5 +1,6 @@
 """Rule engine for claims validation — mirrors the 5 SQL rules in claims_rules_synced."""
 import json
+from config import SPEED_LIMIT_KMH
 
 
 def _parse_damage_prediction(dp):
@@ -86,7 +87,7 @@ def evaluate_rules(claim):
     speed = claim.get("telematics_speed")
     if speed is not None and float(speed) > 0:
         speed_val = float(speed)
-        speed_ok = speed_val <= 45
+        speed_ok = speed_val <= SPEED_LIMIT_KMH
         checks["speed_check"] = {
             "check_name": "Speed Check",
             "passed": speed_ok,
