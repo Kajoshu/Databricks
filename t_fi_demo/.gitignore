@@ -10,3 +10,6 @@ resnet-claims-finetuned/
 *.pt
 *.pth
 *.bin
+
+# Genie spaces (workspace-only assets)
+Insurance Claims and Policy Analysis.genie

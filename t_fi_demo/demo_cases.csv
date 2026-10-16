@@ -1,0 +1,16 @@
+Case,Policy Number,Accident Date,City,Collision Type,Self-Assessed Severity,Claim Amount,Vehicles,Expected Outcome
+1,102069864,2024-10-15,Manhattan,Side-impact,Total Loss,49600,1,APPROVED - within $124k limit
+2,102056170,2024-10-15,Manhattan,Side-impact,Total Loss,16400,2,APPROVED - within $41k limit
+3,102112813,2024-10-15,Queens,Rear-end,Minor Damage,6400,1,APPROVED - within $16k limit
+4,102051246,2024-10-15,Queens,Front-end,Major Damage,5242,1,APPROVED - within $13k limit
+5,102105799,2024-10-15,Bronx,Side-impact,Total Loss,24400,2,APPROVED - within $61k limit
+6,102151247,2024-10-15,Staten Island,Rear-end,Total Loss,105820,1,REJECTED - claim exceeds $1.8k insured
+7,102066080,2024-10-15,Queens,Front-end,Major Damage,105820,3,REJECTED - claim exceeds $7.2k insured
+8,102076473,2024-10-15,Bronx,Rear-end,Major Damage,105040,1,REJECTED - claim exceeds $8.2k insured
+9,102094464,2024-10-15,Queens,Front-end,Minor Damage,3000,1,UNDER REVIEW - upload major damage photo but say Minor
+10,102112302,2024-10-15,Bronx,Side-impact,Minor Damage,42000,1,UNDER REVIEW - upload major damage photo but say Minor
+11,102088918,2024-10-15,Brooklyn,Front-end,Minor Damage,70716,2,UNDER REVIEW - upload major damage photo but say Minor
+12,102064125,2024-10-15,Queens,Front-end,Minor Damage,87000,1,REJECTED - over limit AND severity mismatch
+13,102124375,2024-10-15,Staten Island,Side-impact,Minor Damage,46080,3,REJECTED - over limit AND severity mismatch
+14,102106048,2024-10-15,Manhattan,Rear-end,Total Loss,27200,1,BORDERLINE - amount equals insured exactly
+15,102083096,2024-10-15,Manhattan,Rear-end,Total Loss,40000,2,BORDERLINE - amount equals insured exactly
