@@ -1,3 +1,3 @@
 version: 1
-name: "Hello world"
-description: "A basic starter application."
+name: "Smart Claims"
+description: "Insurance claims management with AI-powered damage analysis and rule engine validation."

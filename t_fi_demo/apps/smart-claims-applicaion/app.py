@@ -11,12 +11,40 @@ app_diagnostics.install_diagnostics()
 # --- end diagnostics bootstrap ---
 
 import streamlit as st
-import pandas as pd
 
-st.set_page_config(layout="wide")
+st.set_page_config(page_title="Smart Claims", page_icon="\U0001f535", layout="wide")
 
-st.header("Hello world!!!")
-apps = st.slider("Number of apps", max_value=60, value=10)
-chart_data = pd.DataFrame({'y':[2 ** x for x in range(apps)]})
-st.bar_chart(chart_data, height=500, width=min(100+50*apps, 1000), 
-             use_container_width=False, x_label="Apps", y_label="Fun with data")
+# Hide Streamlit's auto-discovered pages sidebar
+st.markdown(
+    """<style>[data-testid="stSidebar"] {display: none}</style>""",
+    unsafe_allow_html=True,
+)
+
+# ---- initialise session state ----
+if "mode" not in st.session_state:
+    st.session_state.mode = "customer"
+if "admin_tab" not in st.session_state:
+    st.session_state.admin_tab = "overview"
+if "customer_tab" not in st.session_state:
+    st.session_state.customer_tab = "submit"
+
+# ---- header (branding + mode toggle + tab nav) ----
+from components.header import render_header  # noqa: E402
+
+render_header()
+
+# ---- route to the active page ----
+if st.session_state.mode == "admin":
+    if st.session_state.get("admin_tab") == "analysis":
+        from pages.admin_analysis import render  # noqa: E402
+    else:
+        from pages.admin_overview import render  # noqa: E402
+    render()
+else:
+    if st.session_state.get("show_results"):
+        from pages.customer_results import render  # noqa: E402
+    elif st.session_state.get("customer_tab") == "status":
+        from pages.customer_status import render  # noqa: E402
+    else:
+        from pages.customer_submit import render  # noqa: E402
+    render()
